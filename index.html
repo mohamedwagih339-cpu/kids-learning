@@ -470,6 +470,7 @@
   .tone-big { --tone1: #ffa94d; --tone2: #d9480f; }
   .tone-free { --tone1: #63e6be; --tone2: #0ca678; }
   .tone-curriculum { --tone1: #ffd43b; --tone2: #f08c00; }
+  .tone-harakat { --tone1: #ff922b; --tone2: #f76707; }
 
   .big-banner {
     display: flex;
@@ -1436,6 +1437,14 @@
         <p>كتب ناطقة في العربية والإنجليزية والرياضيات حسب المرحلة.</p>
         <div class="sec-foot"><span>من التمهيدي إلى الصف الثالث</span><span>📖 🔊</span></div>
       </button>
+
+      <button class="sec-card tone-harakat" type="button" id="openHarakatCard">
+        <div class="sec-icon" aria-hidden="true">🔤</div>
+        <h3>الحركات: فتحة وكسرة وضمة</h3>
+        <p>تعلّم الفتحة والكسرة والضمة مع إيمو… استمع، ردّد، واكتب</p>
+        <div class="progress"><i></i></div>
+        <div class="sec-foot"><span data-i18n="progressLabel">تقدمك</span><span class="stars-count" id="harakatStarsFoot">⭐ 0 / 9</span></div>
+      </button>
     </div>
 
     <div class="big-banner">
@@ -1659,6 +1668,19 @@
   </section>
 
   <!-- ============ INTERACTIVE CURRICULUM ============ -->
+  <!-- ============ HARAKAT (الحركات) ============ -->
+  <section class="screen hidden" id="harakatScreen">
+    <div class="screen-head">
+      <button class="icon-btn" type="button" id="harakatBackBtn" aria-label="رجوع" title="رجوع">↩️</button>
+      <div class="head-text">
+        <h2 id="harakatTitle">الحركات: فتحة وكسرة وضمة</h2>
+        <p id="harakatSub">اختر الحرف والمستوى… وإيمو معك</p>
+      </div>
+      <div class="quiz-score">⭐ <b id="harakatScoreTop">0</b></div>
+    </div>
+    <div id="harakatRoot"></div>
+  </section>
+
   <section class="screen hidden" id="curriculumScreen">
     <div class="screen-head">
       <button class="icon-btn" type="button" data-go="home" aria-label="رجوع" title="رجوع">↩️</button>
@@ -1726,6 +1748,7 @@
 
 <script src="./tf.min.js"></script>
 <script src="./free-draw-models.js"></script>
+<script src="./harakat.js"></script>
 <script>
 (() => {
   "use strict";
@@ -3290,7 +3313,7 @@ const AR_EXTRA_VOICE = {
   state.trace = { points: [], drawing: false, last: null, demoRaf: 0, demoUntil: 0, passed: false };
   state.learning = false;
 
-  const SCREEN_IDS = ["setupScreen", "homeScreen", "learnScreen", "quizScreen", "activityScreen", "freeDrawScreen", "curriculumScreen"];
+  const SCREEN_IDS = ["setupScreen", "homeScreen", "learnScreen", "quizScreen", "activityScreen", "freeDrawScreen", "curriculumScreen", "harakatScreen"];
 
   const CURRICULUM_LEVELS = ["التمهيدي", "رياض الأطفال الأول", "رياض الأطفال الثاني", "الصف الأول الابتدائي", "الصف الثاني الابتدائي", "الصف الثالث الابتدائي"];
   const CURRICULUM = {
@@ -4539,6 +4562,11 @@ const AR_EXTRA_VOICE = {
         if (bar) bar.style.width = (max ? Math.round((earned / max) * 100) : 0) + "%";
         if (foot) foot.textContent = "⭐ " + fmt(earned) + " / " + fmt(max);
         card.classList.toggle("is-done", earned >= max);
+      } else if (card.id === "openHarakatCard") {
+        const hk = (window.Harakat && window.Harakat.getProgress) ? window.Harakat.getProgress() : { earned: 0, max: 9 };
+        if (bar) bar.style.width = (hk.max ? Math.round((hk.earned / hk.max) * 100) : 0) + "%";
+        if (foot) foot.textContent = "⭐ " + fmt(hk.earned) + " / " + fmt(hk.max);
+        card.classList.toggle("is-done", hk.earned >= hk.max && hk.max > 0);
       } else if (card.getAttribute("data-quiz")) {
         const best = Math.max(0, Math.min(3, Number(state.quizBest.stars) || 0));
         if (bar) bar.style.width = Math.round((best / 3) * 100) + "%";
@@ -6725,6 +6753,17 @@ const AR_EXTRA_VOICE = {
       sfxClick();
       openCurriculum();
     });
+    const harakatCard = $("openHarakatCard");
+    if (harakatCard) harakatCard.addEventListener("click", () => {
+      initAudio();
+      sfxClick();
+      if (window.Harakat && window.Harakat.open) window.Harakat.open();
+    });
+    const harakatBack = $("harakatBackBtn");
+    if (harakatBack) harakatBack.addEventListener("click", () => {
+      initAudio(); sfxClick();
+      if (window.Harakat && window.Harakat.back) window.Harakat.back(); else goHome();
+    });
     const clearFree = $("clearFreeCanvas");
     if (clearFree) clearFree.addEventListener("click", clearFreeDrawing);
     const freeSet = $("freeDrawSet");
@@ -7070,6 +7109,7 @@ const AR_EXTRA_VOICE = {
     }
   }
 
+  window.__emoCore = { $, qsa, clamp, rand, randInt, pick, shuffle, fmt, t, setText, setHTML, showScreen, pulse, state, SECTIONS, SCREEN_IDS, load, save, PREFIX, getStars, setStars, totalStars, sectionStars, levelCount, kidName, speak, playVoice, stopVoice, robotSay, sfxClick, sfxYes, sfxNo, sfxWin, flash, glow, starRain, confetti, burstAtElement, flyStars, toast, renderHome, goHome, openSection, initAudio, wobbleRobot, speakRobot, AR_VOICE, I18N, tForLanguage, AR_LETTERS };
   init();
 })();
 </script>
