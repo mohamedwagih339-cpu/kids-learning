@@ -11,13 +11,13 @@
   "theme_color": "#5B5BEA",
   "icons": [
     {
-      "src": "emo-icon.jpeg",
-      "type": "image/jpeg",
+      "src": "emo-icon-192.png",
+      "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "emo-icon.jpeg",
-      "type": "image/jpeg",
+      "src": "emo-icon-512.png",
+      "type": "image/png",
       "sizes": "512x512"
     }
   ]
